@@ -4,17 +4,16 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,37 +26,30 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-//                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
-//                    Greeting(
-//                        name = "Android",
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
-//                }
                 Surface(color = MaterialTheme.colorScheme.background) {
                     CreateBizCard()
                 }
@@ -65,9 +57,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun CreateBizCard() {
+    val buttonClickedState = remember {
+        mutableStateOf(false)
+    }
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -77,10 +71,9 @@ fun CreateBizCard() {
         Card(
             modifier = Modifier
                 .width(200.dp)
-                .height(390.dp)
-                .padding(10.dp),
+                .height(390.dp),
             elevation = CardDefaults.cardElevation(10.dp),
-            shape = RoundedCornerShape(corner = CornerSize(25.dp)),
+            shape = RoundedCornerShape(corner = CornerSize(2.dp)),
             colors = CardDefaults.cardColors(Color.White)
         ) {
             Column(
@@ -91,29 +84,49 @@ fun CreateBizCard() {
                 CreateImageProfile()
                 TopDivider()
                 CreateInfo()
-                PortfolioButton()
-                Content()
+                Button(
+                    modifier = Modifier,
+                    enabled = true,
+                    onClick = {
+                        Log.d("Clicked", "CreateBizCard: Clicked")
+                        buttonClickedState.value = !buttonClickedState.value
+
+                    },
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(text = "Portfolio")
+                }
+                if (buttonClickedState.value) {
+                    Content()
+                } else {
+                    Box {}
+                }
             }
 
         }
 
     }
-}
 
+}
+@Preview(showBackground = true)
 @Composable
 fun Content() {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight()
-        .padding(5.dp)) {
-        Surface(modifier = Modifier
+    Box(
+        modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(),
-            shape = RoundedCornerShape(corner = CornerSize(15.dp)),
-            border = BorderStroke(width = 2.dp, color = Color.LightGray),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0f)) {
+            .fillMaxHeight()
+            .padding(5.dp)
+    ) {
+        Surface(
+            modifier = Modifier
+                .padding(3.dp)
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            shape = RoundedCornerShape(corner = CornerSize(6.dp)),
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+            color = Color.White
+        ) {
             Portfolio(data = listOf("Project 1", "Project 2", "Project 3"))
-
         }
     }
 
@@ -121,25 +134,45 @@ fun Content() {
 
 @Composable
 fun Portfolio(data: List<String>) {
-    LazyColumn() {
+    LazyColumn {
         items(data) { item ->
-            Text(item)
+            // Text(item)
+            ProjectCard(project = item)
         }
     }
 }
 
-@Composable
-private fun PortfolioButton() {
-    Button(
-        modifier = Modifier,
-        enabled = true,
-        onClick = {
-            Log.d("Clicked", "CreateBizCard: Clicked")
 
-        },
-        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
+@Composable
+fun ProjectCard(project: String) {
+//    Surface{
+    Card(
+        modifier = Modifier
+            .padding(13.dp)
+            .fillMaxWidth(),
+        shape = RectangleShape,
+        colors = CardDefaults.cardColors(Color.White),
+        elevation = CardDefaults.cardElevation(5.dp)
     ) {
-        Text(text = "Portfolio")
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .background(Color.Transparent)
+                .padding(8.dp)
+        ) {
+            CreateImageProfile(modifier = Modifier.size(100.dp))
+            Column(modifier = Modifier.padding(7.dp).align(alignment = Alignment.CenterVertically)) {
+                Text(text = project,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(text = "A great project",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+        }
+
 
     }
 }
@@ -178,22 +211,22 @@ private fun CreateInfo() {
 @Composable
 private fun CreateImageProfile(modifier: Modifier = Modifier) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .size(150.dp)
             .padding(5.dp),
         shape = CircleShape, border = BorderStroke(0.5.dp, Color.LightGray),
-        shadowElevation = 20.dp,
+        shadowElevation = 10.dp,
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
     ) {
         Image(
             painter = painterResource(id = R.drawable.profile_image),
-            contentDescription = "profile image", modifier = Modifier.size(20.dp),
+            contentDescription = "profile image", modifier = modifier.size(20.dp),
             contentScale = ContentScale.Crop
         )
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     MyApplicationTheme {
